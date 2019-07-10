@@ -1,5 +1,6 @@
 pub mod batch;
 pub mod buffer;
+pub mod encode;
 pub mod http;
 pub mod partition;
 pub mod retries;
