@@ -1,7 +1,7 @@
 use crate::{
     buffers::Acker,
     sinks::util::{
-        encode::{self, BasicEncoding},
+        encoding::{self, BasicEncoding},
         SinkExt,
     },
 };
@@ -45,7 +45,7 @@ impl crate::topology::config::SinkConfig for ConsoleSinkConfig {
         let sink = FramedWrite::new(output, LinesCodec::new())
             .stream_ack(acker)
             .sink_map_err(|_| ())
-            .with(move |event| encode::event_as_string(event, &encoding));
+            .with(move |event| encoding::event_as_string(event, &encoding));
 
         Ok((Box::new(sink), Box::new(future::ok(()))))
     }

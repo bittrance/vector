@@ -1,7 +1,7 @@
 use crate::{
     buffers::Acker,
     sinks::util::{
-        encode::{self, BasicEncoding},
+        encoding::{self, BasicEncoding},
         SinkExt,
     },
 };
@@ -186,7 +186,7 @@ pub fn raw_tcp(
     Box::new(
         TcpSink::new(addr)
             .stream_ack(acker)
-            .with(move |event| encode::event_as_bytes_with_nl(event, &encoding)),
+            .with(move |event| encoding::event_as_bytes_with_nl(event, &encoding)),
     )
 }
 

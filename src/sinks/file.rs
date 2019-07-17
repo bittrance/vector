@@ -1,7 +1,7 @@
 use crate::{
     buffers::Acker,
     sinks::util::{
-        encode::{self, BasicEncoding},
+        encoding::{self, BasicEncoding},
         SinkExt,
     },
 };
@@ -46,7 +46,7 @@ impl crate::topology::config::SinkConfig for FileSinkConfig {
 
         let sink = FileSink::new(path?)
             .stream_ack(acker)
-            .with(move |event| encode::event_as_bytes_with_nl(event, &encoding));
+            .with(move |event| encoding::event_as_bytes_with_nl(event, &encoding));
 
         Ok((Box::new(sink), healthcheck))
     }

@@ -1,8 +1,9 @@
 pub mod batch;
 pub mod buffer;
-pub mod encode;
+pub mod encoding;
 pub mod http;
 pub mod partition;
+pub mod interpolation;
 pub mod retries;
 
 use crate::buffers::Acker;
