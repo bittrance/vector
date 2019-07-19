@@ -7,7 +7,7 @@ use crate::{
     topology::config::{DataType, SinkConfig},
 };
 use bytes::Bytes;
-use futures::{stream::iter_ok, sync::oneshot, try_ready, Async, Future, Poll, Sink};
+use futures::{future, stream::iter_ok, sync::oneshot, try_ready, Async, Future, Poll, Sink};
 use rusoto_core::RusotoFuture;
 use rusoto_logs::{
     CloudWatchLogs, CloudWatchLogsClient, CreateLogStreamError, CreateLogStreamRequest,
@@ -236,8 +236,20 @@ impl CloudwatchLogsSvc {
             log_group_name: self.group_name.clone(),
             log_stream_name: self.stream_name.clone(),
         };
-
-        self.client.put_log_events(request)
+        RusotoFuture::from_future(
+            future::loop_fn((self.client, request, 0u8), |(client, request, retries)| {
+                self.client.put_log_events(request.clone())
+                    .and_then(|res| Ok(future::Loop::Break(res)))
+                    .or_else(move |err| {
+                        retries += 1;
+                        if retries >= 3 {
+                            Err(err)
+                        } else {
+                            Ok(future::Loop::Continue((client, request, retries)))
+                        }
+                    })
+            })
+        )
     }
 
     fn describe_stream(
