@@ -22,21 +22,20 @@
 # Source function library.
 . /etc/rc.d/init.d/functions
 
-# This will prevent initlog from swallowing up a pass-phrase prompt if
-# mod_ssl needs a pass-phrase from the user.
-INITLOG_ARGS=""
-
 # Path to the apachectl script, server binary, and short-form for messages.
-vector=/usr/bin/vector
+vector=/usr/local/bin/vector
 prog=vector
 pidfile=${PIDFILE-/var/run/vector.pid}
 RETVAL=0
+OPTIONS="-c /etc/vector.toml"
 
 # Start
 start() {
   echo -n $"Starting $prog: "
-  daemon --pidfile=${pidfile} --output=/var/log/vector.log $vector $OPTIONS
+  $vector $OPTIONS >> /var/log/vector.log 2>&1 &
   RETVAL=$?
+  echo $! > $pidfile
+  [ $RETVAL -eq 0 ] && echo_success
   echo
   return $RETVAL
 }
